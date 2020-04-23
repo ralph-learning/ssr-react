@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { App } from './App.jsx';
+import { handlerModifyAnswerVotes } from '../shared/utility';
 
 let state = undefined;
 fetch('http://localhost:3000/data')
@@ -8,23 +9,17 @@ fetch('http://localhost:3000/data')
   .then(json => {
     state = json;
     render();
-  })
-
-function handlerModifyAnswerVotes(answerId, increase) {
-  state.answers = state.answers.map(answer => {
-    if(answer.id !== answerId) {
-      return answer;
-    } else {
-      return {
-        ...answer, upvotes: answer.upvotes + increase
-      };
-    }
   });
+
+function handleVote(answerId, increase) {
+  state.answers = handlerModifyAnswerVotes(state.answers, answerId, increase);
+
+  fetch(`/vote/${answerId}?increase=${increase}`);
 
   render();
 }
 
 function render() {
-  ReactDOM.hydrate(<App {...state} handlerModifyAnswerVotes={handlerModifyAnswerVotes} />, document.getElementById('root'));
+  ReactDOM.hydrate(<App {...state} handlerModifyAnswerVotes={handleVote} />, document.getElementById('root'));
 }
 

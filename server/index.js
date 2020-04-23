@@ -4,6 +4,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server'
 
 import { App } from '../client/App.jsx';
+import { handlerModifyAnswerVotes } from '../shared/utility';
 
 const app = new express();
 
@@ -30,6 +31,13 @@ app.use(express.static('dist'));
 app.get('/data', async (_req, res) => {
   res.json(data);
 });
+
+app.get('/vote/:answerId', (req, res) => {
+  const { params, query } = req;
+
+  data.answers = handlerModifyAnswerVotes(data.answers, params.answerId, +query.increase)
+  res.send('OK!');
+})
 
 app.get('/', async (_req, res) => {
   const index = readFileSync('public/index.html', 'utf8');
